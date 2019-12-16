@@ -1,0 +1,15 @@
+---
+- hosts: netdata_servers
+  become: yes
+  roles:
+    - role: netdata
+- hosts: netdata_master
+  become: yes
+  roles: 
+    - role: netdata_master
+- hosts: netdata_slaves
+  become: yes
+  vars:
+    enable_stream: yes
+  roles:
+    - role: netdata_slave

@@ -1,0 +1,37 @@
+---
+- name: Install netdata dependencies
+  apt:
+    pkg:
+      - zlib1g-dev
+      - uuid-dev
+      - libuv1-dev
+      - liblz4-dev
+      - libjudy-dev
+      - libssl-dev
+      - libmnl-dev
+      - gcc
+      - make
+      - git
+      - autoconf
+      - autoconf-archive
+      - autogen
+      - automake
+      - pkg-config
+      - curl
+      - python
+    update_cache: yes
+- name: Cloning Git repository (latest version)
+  git:
+    repo: https://github.com/netdata/netdata.git
+    depth: 100
+    dest: /tmp/netdata/
+- name: Build netdata
+  shell:
+    cmd: ./netdata-installer.sh --dont-wait
+    chdir: /tmp/netdata/
+
+
+# - name: install latest version of netdata using online installer  
+#   command: bash <(curl -Ss https://my-netdata.io/kickstart.sh)
+#   register: netdata_installation
+# - debug: var=netdata_installation.stdout_lines
