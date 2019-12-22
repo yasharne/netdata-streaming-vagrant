@@ -1,3 +1,5 @@
 ---
+netdata_version_apt: 1.9.0+dfsg-1
+netdata_version_yum: 1.19.0-1.el7
 netdata_master_port: 19999
 uuid: 12370493-ee42-4989-b6b0-1069e21da4d8

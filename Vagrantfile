@@ -1,11 +1,6 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-NETDATA_IP = "172.28.128.11"
-MACHINE1_IP = "172.28.128.12"
-MACHINE2_IP = "172.28.128.13"
-MACHINE3_IP = "172.28.128.14"
-
 Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |v|
     v.memory = 512
@@ -40,6 +35,16 @@ Vagrant.configure("2") do |config|
         "netdata_servers:children" => ["netdata_master", "netdata_slaves"]
       }
     end
+  end
+  config.vm.define "rocket" do |rocket|
+    rocket.vm.box = "hashicorp/bionic64"
+    rocket.vm.hostname = "rocket"
+    rocket.vm.network "private_network", type: "dhcp"
+  end
+  config.vm.define "cent" do |cent|
+    cent.vm.box = "centos/7"
+    cent.vm.hostname = "cent"
+    cent.vm.network "private_network", type: "dhcp"
   end
 
   # Disable automatic box update checking. If you disable this, then

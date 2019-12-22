@@ -1,15 +1,3 @@
-# netdata configuration for aggregating data from remote hosts
-#
-# API keys authorize a pair of sending-receiving netdata servers.
-# Once their communication is authorized, they can exchange metrics for any
-# number of hosts.
-#
-# You can generate API keys, with the linux command: uuidgen
-
-
-# -----------------------------------------------------------------------------
-# 1. ON SLAVE NETDATA - THE ONE THAT WILL BE SENDING METRICS
-
 [stream]
     enabled = {{enable_stream}}
     destination = {{hostvars['netdata'].ansible_eth1.ipv4.address}}:{{netdata_master_port}}

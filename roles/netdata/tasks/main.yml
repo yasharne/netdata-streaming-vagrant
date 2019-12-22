@@ -1,37 +1,75 @@
 ---
-- name: Install netdata dependencies
+- name: Checking whether netdata service is present or not
+  service_facts:
+- name: Downloading netdata repository [Ubuntu]
+  get_url:
+    url: https://packagecloud.io/install/repositories/netdata/netdata/script.deb.sh
+    dest: /tmp/script.sh
+  when: 'not ("netdata.service" in ansible_facts.services) and
+        (ansible_facts["distribution"] == "Ubuntu")'
+- name: Downloading netdata repository [Centos]
+  get_url:
+    url: https://packagecloud.io/install/repositories/netdata/netdata/script.rpm.sh
+    dest: /tmp/script.sh
+  when: 'not ("netdata.service" in ansible_facts.services) and
+        (ansible_facts["distribution"] == "CentOS")'
+- name: Running netdata repository script 
+  shell: /tmp/script.sh
+  when: 'not ("netdata.service" in ansible_facts.services)'
+- name: installing netdata using package manager [Ubuntu]
   apt:
-    pkg:
-      - zlib1g-dev
-      - uuid-dev
-      - libuv1-dev
-      - liblz4-dev
-      - libjudy-dev
-      - libssl-dev
-      - libmnl-dev
-      - gcc
-      - make
-      - git
-      - autoconf
-      - autoconf-archive
-      - autogen
-      - automake
-      - pkg-config
-      - curl
-      - python
-    update_cache: yes
-- name: Cloning Git repository (latest version)
-  git:
-    repo: https://github.com/netdata/netdata.git
-    depth: 100
-    dest: /tmp/netdata/
-- name: Build netdata
-  shell:
-    cmd: ./netdata-installer.sh --dont-wait
-    chdir: /tmp/netdata/
-
-
-# - name: install latest version of netdata using online installer  
-#   command: bash <(curl -Ss https://my-netdata.io/kickstart.sh)
-#   register: netdata_installation
-# - debug: var=netdata_installation.stdout_lines
+    name: netdata={{netdata_version_apt}}
+    state: present
+  when: 'not ("netdata.service" in ansible_facts.services)'
+- name: installing epel-release [CentOS]
+  yum:
+    name: epel-release
+    state: latest
+    disable_gpg_check: yes
+  when: 'not ("netdata.service" in ansible_facts.services) and 
+        (ansible_facts["distribution"] == "CentOS")'
+- name: installing netdata using package manager [CentOS]
+  apt:
+    name: netdata-{{netdata_version_yum}}
+    state: present
+    disable_gpg_check: yes
+  when: 'not ("netdata.service" in ansible_facts.services) and 
+        (ansible_facts["distribution"] == "CentOS")'
+- name: Adding firewall rules [CentOS]
+  firewalld:
+    port: 19999/tcp
+    permanent: yes
+    zone: public
+    state: enabled
+  when: 'not ("netdata.service" in ansible_facts.services) and 
+        (ansible_facts["distribution"] == "CentOS")'
+# - name: Install netdata dependencies
+#   apt:
+#     pkg:
+#       - zlib1g-dev
+#       - uuid-dev
+#       - libuv1-dev
+#       - liblz4-dev
+#       - libjudy-dev
+#       - libssl-dev
+#       - libmnl-dev
+#       - gcc
+#       - make
+#       - git
+#       - autoconf
+#       - autoconf-archive
+#       - autogen
+#       - automake
+#       - pkg-config
+#       - curl
+#       - python
+#     update_cache: yes
+# - name: Cloning Git repository (latest version)
+#   git:
+#     repo: https://github.com/netdata/netdata.git
+#     depth: 100
+#     dest: /tmp/netdata/
+# - name: Build netdata
+#   shell:
+#     cmd: ./netdata-installer.sh --dont-wait
+#     chdir: /tmp/netdata/
