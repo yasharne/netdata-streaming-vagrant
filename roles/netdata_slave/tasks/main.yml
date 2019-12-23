@@ -1,40 +1,53 @@
 ---
-- name: Checking whether streaming.conf file exists
-  stat:
-    path: /etc/netdata/stream.conf
-  register: exists
-
-- name: Reading stream.conf to see whether streaming is enabled
-  block:
-    - shell: cat /etc/netdata/stream.conf | tr -s ' '|  grep -i 'enabled = True'
-    - debug: msg="already exists"
-  rescue:
-    - name: "Enabling streaming"
-      lineinfile:
-        path: /etc/netdata/stream.conf
-        regexp: '^ enabled ='
-  # register: enabled
-  # shell: cat /etc/netdata/stream.conf | tr -s ' '|  grep -i 'enabled = True'
-  when: exists.stat.exists
-
-# - name: debuging
-#   debug: msg='{{enabled}}'
-
-# - name: Checking whether streaming is enabled 
-#   lineinfile:
+# - name: Checking whether streaming.conf file exists
+#   stat:
 #     path: /etc/netdata/stream.conf
-#     regexp: '^ enabled ='
-#     line: enabled = {{enable_stream}}
-#   # debug: msg="Streaming is enabled"
-#   when: not (enabled is changed)
+#   register: exists
+
+# - name: Reading stream.conf to see whether streaming is enabled
+#   block:
+#     - shell: cat /etc/netdata/stream.conf | tr -s ' '|  grep -i 'enabled = True'
+#     - debug: msg="already exists"
+#   rescue:
+#     - name: "Enabling streaming"
+#       lineinfile:
+#         path: /etc/netdata/stream.conf
+#         regexp: '^ enabled ='
+#   # register: enabled
+#   # shell: cat /etc/netdata/stream.conf | tr -s ' '|  grep -i 'enabled = True'
+#   when: exists.stat.exists
+
+# # - name: debuging
+# #   debug: msg='{{enabled}}'
+
+# # - name: Checking whether streaming is enabled 
+# #   lineinfile:
+# #     path: /etc/netdata/stream.conf
+# #     regexp: '^ enabled ='
+# #     line: enabled = {{enable_stream}}
+# #   # debug: msg="Streaming is enabled"
+# #   when: not (enabled is changed)
 
 
 - name: Generate stream.conf file
   template:
     src: stream.conf.j2
-    dest: /etc/netdata/stream.conf
+    dest: /opt/netdata/etc/netdata/stream.conf
     owner: netdata
     mode: 0640
   notify: restart netdata
-  when: not (exists.stat.exists)
+  # when: not (exists.stat.exists)
   # when: not (enabled is changed)
+# - name: Disable web mode on slave
+#   lineinfile:
+#     path: /etc/netdata/netdata.conf
+#     regexp: '# memory mode = static-threaded'
+#     line: memory mode = none
+#   notify: restart netdata
+- name: Copying netdata.conf file to the host
+  copy:
+    src: netdata.conf
+    dest: /opt/netdata/etc/netdata/netdata.conf
+    owner: netdata
+    group: netdata
+    mode: '0644'

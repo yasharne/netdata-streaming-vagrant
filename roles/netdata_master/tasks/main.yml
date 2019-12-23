@@ -2,7 +2,7 @@
 - name: Generate stream.conf file
   template:
     src: stream.conf.j2
-    dest: /etc/netdata/stream.conf
+    dest: /opt/netdata/etc/netdata/stream.conf
     owner: netdata
     mode: 0640
   notify: restart netdata

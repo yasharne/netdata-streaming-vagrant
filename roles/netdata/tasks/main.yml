@@ -5,22 +5,24 @@
   get_url:
     url: https://packagecloud.io/install/repositories/netdata/netdata/script.deb.sh
     dest: /tmp/script.sh
+    mode: 0744
   when: 'not ("netdata.service" in ansible_facts.services) and
         (ansible_facts["distribution"] == "Ubuntu")'
 - name: Downloading netdata repository [Centos]
   get_url:
     url: https://packagecloud.io/install/repositories/netdata/netdata/script.rpm.sh
     dest: /tmp/script.sh
+    mode: 0744
   when: 'not ("netdata.service" in ansible_facts.services) and
         (ansible_facts["distribution"] == "CentOS")'
 - name: Running netdata repository script 
   shell: /tmp/script.sh
   when: 'not ("netdata.service" in ansible_facts.services)'
-- name: installing netdata using package manager [Ubuntu]
-  apt:
-    name: netdata={{netdata_version_apt}}
-    state: present
-  when: 'not ("netdata.service" in ansible_facts.services)'
+# - name: installing netdata using package manager [Ubuntu]
+#   apt:
+#     name: netdata={{netdata_version_apt}}
+#     state: present
+#   when: 'not ("netdata.service" in ansible_facts.services)'
 - name: installing epel-release [CentOS]
   yum:
     name: epel-release
@@ -28,13 +30,13 @@
     disable_gpg_check: yes
   when: 'not ("netdata.service" in ansible_facts.services) and 
         (ansible_facts["distribution"] == "CentOS")'
-- name: installing netdata using package manager [CentOS]
+- name: installing netdata using package manager [Ubuntu]
   apt:
-    name: netdata-{{netdata_version_yum}}
+    name: netdata={{netdata_version_apt}}
     state: present
-    disable_gpg_check: yes
+    allow_unauthenticated: yes
   when: 'not ("netdata.service" in ansible_facts.services) and 
-        (ansible_facts["distribution"] == "CentOS")'
+        (ansible_facts["distribution"] == "Ubuntu")'
 - name: Adding firewall rules [CentOS]
   firewalld:
     port: 19999/tcp
@@ -43,33 +45,20 @@
     state: enabled
   when: 'not ("netdata.service" in ansible_facts.services) and 
         (ansible_facts["distribution"] == "CentOS")'
-# - name: Install netdata dependencies
-#   apt:
-#     pkg:
-#       - zlib1g-dev
-#       - uuid-dev
-#       - libuv1-dev
-#       - liblz4-dev
-#       - libjudy-dev
-#       - libssl-dev
-#       - libmnl-dev
-#       - gcc
-#       - make
-#       - git
-#       - autoconf
-#       - autoconf-archive
-#       - autogen
-#       - automake
-#       - pkg-config
-#       - curl
-#       - python
-#     update_cache: yes
-# - name: Cloning Git repository (latest version)
-#   git:
-#     repo: https://github.com/netdata/netdata.git
-#     depth: 100
-#     dest: /tmp/netdata/
-# - name: Build netdata
-#   shell:
-#     cmd: ./netdata-installer.sh --dont-wait
-#     chdir: /tmp/netdata/
+- name: Creating backup of previous netdata systemd backup
+  copy: 
+    src: /lib/systemd/system/netdata.service
+    dest: /lib/systemd/system/netdata_old.service
+    remote_src: yes
+  ignore_errors: yes 
+- name: stoping current netdata unit
+  systemd:
+    name: netdata
+    state: stopped
+- name: Downloading Netdata prebuild script
+  get_url:
+    url: https://my-netdata.io/kickstart-static64.sh
+    dest: /tmp/kickstart-static64.sh
+    mode: 0744
+- name: Executing netdata prebuild installer
+  shell: /tmp/kickstart-static64.sh --non-interactive

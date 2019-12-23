@@ -36,16 +36,21 @@ Vagrant.configure("2") do |config|
       }
     end
   end
-  config.vm.define "rocket" do |rocket|
-    rocket.vm.box = "hashicorp/bionic64"
-    rocket.vm.hostname = "rocket"
-    rocket.vm.network "private_network", type: "dhcp"
-  end
-  config.vm.define "cent" do |cent|
-    cent.vm.box = "centos/7"
-    cent.vm.hostname = "cent"
-    cent.vm.network "private_network", type: "dhcp"
-  end
+  # config.vm.define "test" do |test|
+  #   test.vm.box = "hashicorp/bionic64"
+  #   test.vm.hostname = "test"
+  #   test.vm.network "private_network", type: "dhcp"
+  # end
+  # config.vm.define "rocket" do |rocket|
+  #   rocket.vm.box = "hashicorp/bionic64"
+  #   rocket.vm.hostname = "rocket"
+  #   rocket.vm.network "private_network", type: "dhcp"
+  # end
+  # config.vm.define "cent" do |cent|
+  #   cent.vm.box = "centos/7"
+  #   cent.vm.hostname = "cent"
+  #   cent.vm.network "private_network", type: "dhcp"
+  # end
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
