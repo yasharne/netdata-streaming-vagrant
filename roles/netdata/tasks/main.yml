@@ -18,11 +18,6 @@
 - name: Running netdata repository script 
   shell: /tmp/script.sh
   when: 'not ("netdata.service" in ansible_facts.services)'
-# - name: installing netdata using package manager [Ubuntu]
-#   apt:
-#     name: netdata={{netdata_version_apt}}
-#     state: present
-#   when: 'not ("netdata.service" in ansible_facts.services)'
 - name: installing epel-release [CentOS]
   yum:
     name: epel-release
